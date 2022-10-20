@@ -27,13 +27,56 @@ class Field {
 
     console.log(fieldString);
   }
+
+  static generateField(height = 4, width = 4, percentage = 20) {
+    // calculate total space
+    const fieldSpace = height * width;
+
+    // calculate percentage of space that should be holes
+    const holesPercent = Math.floor((fieldSpace * percentage) / 100);
+
+    // create counter for holes in field
+    let holesInField = 0;
+    const holesPos = [];
+
+    // create empty array filled with field characters
+    const field = Array(fieldSpace).fill(fieldCharacter);
+
+    // randomly add holes in field array
+    while (holesInField < holesPercent) {
+      const pos = Math.floor(Math.random() * fieldSpace);
+      if (holesPos.includes(pos) || pos === 0) continue;
+      console.log(`hole position ${pos}`);
+      field[pos] = hole;
+      holesInField++;
+    }
+
+    // randomly add hat
+    while (true) {
+      const pos = Math.floor(Math.random() * fieldSpace);
+      if (holesPos.includes(pos) || pos === 0) continue;
+      field[pos] = hat;
+      break;
+    }
+
+    // add starting character to first position
+    field[0] = pathCharacter;
+
+    const nestedField = [];
+
+    while (nestedField.length !== height) {
+      const arr = [];
+      for (let i = 0; i < width; i++) {
+        arr.push(field.shift());
+      }
+      nestedField.push(arr);
+    }
+
+    return nestedField;
+  }
 }
 
-const myField = new Field([
-  [pathCharacter, fieldCharacter, hole],
-  [fieldCharacter, hole, fieldCharacter],
-  [fieldCharacter, hat, fieldCharacter],
-]);
+const myField = new Field(Field.generateField());
 
 let isPlaying = true;
 
