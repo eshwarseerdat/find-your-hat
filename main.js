@@ -6,6 +6,7 @@ const fieldCharacter = "░";
 const pathCharacter = "*";
 const moveDirection = "wsad";
 
+const randRangeNum = (maxNum) => Math.floor(Math.random() * maxNum);
 class Field {
   constructor(field) {
     this._field = field;
@@ -37,52 +38,51 @@ class Field {
 
     // create counter for holes in field
     let holesInField = 0;
-    const holesPos = [];
 
     // create empty array filled with field characters
     const field = Array(fieldSpace).fill(fieldCharacter);
 
-    // randomly add holes in field array
-    while (holesInField < holesPercent) {
-      const pos = Math.floor(Math.random() * fieldSpace);
-      if (holesPos.includes(pos) || pos === 0) continue;
-      field[pos] = hole;
-      holesPos.push(pos);
-      holesInField++;
-    }
-
-    // randomly add hat
-    while (true) {
-      const pos = Math.floor(Math.random() * fieldSpace);
-      if (holesPos.includes(pos) || pos === 0) continue;
-      field[pos] = hat;
-      break;
-    }
-
-    // add starting character to first position
-    field[0] = pathCharacter;
-
     const nestedField = [];
-
     while (nestedField.length !== height) {
-      const arr = [];
-      for (let i = 0; i < width; i++) {
-        arr.push(field.shift());
-      }
-      nestedField.push(arr);
+      nestedField.push(field.splice(0, width));
     }
 
-    return nestedField;
+    const pathX = randRangeNum(width);
+    const pathY = randRangeNum(height);
+    console.log(`path`, pathY, pathX);
+    nestedField[pathY][pathX] = pathCharacter;
+
+    while (holesInField < holesPercent) {
+      const randX = randRangeNum(width);
+      const randY = randRangeNum(height);
+      const pos = nestedField[randY][randX];
+      if (pos !== pathCharacter && pos !== hat) {
+        nestedField[randY][randX] = hole;
+        holesInField++;
+      }
+    }
+
+    while (true) {
+      const hatX = randRangeNum(width);
+      const hatY = randRangeNum(height);
+      if (
+        nestedField[hatY][hatX] !== pathCharacter &&
+        nestedField[hatY][hatX] !== hole
+      ) {
+        console.log(`hat`, hatY, hatX);
+        nestedField[hatY][hatX] = hat;
+        break;
+      }
+    }
+
+    return { nestedField, pathY, pathX };
   }
 }
 
-const myField = new Field(Field.generateField(6, 4, 25));
+let { nestedField, pathY, pathX } = Field.generateField(4, 4, 25);
+const myField = new Field(nestedField);
 
-let isPlaying = true;
-let posX = 0;
-let posY = 0;
-
-while (isPlaying) {
+while (true) {
   myField.print();
 
   console.log("w - up, s - down, a - left, d - right");
@@ -95,62 +95,62 @@ while (isPlaying) {
   if (!moveDirection.includes(userMove)) continue;
 
   if (userMove === "w") {
-    if (posY - 1 < 0) {
+    if (pathY - 1 < 0) {
       console.log("Out of bounds 🚶");
       break;
-    } else if (myField.field[posY - 1][posX] === hole) {
+    } else if (myField.field[pathY - 1][pathX] === hole) {
       console.log("You fell down a hole 💀");
       break;
-    } else if (myField.field[posY - 1][posX] === hat) {
+    } else if (myField.field[pathY - 1][pathX] === hat) {
       console.log("You found your hat! 👍🌟");
       break;
     }
-    myField.field[posY - 1][posX] = pathCharacter;
-    posY--;
+    myField.field[pathY - 1][pathX] = pathCharacter;
+    pathY--;
   }
 
   if (userMove === "s") {
-    if (posY + 1 >= myField.field.length) {
+    if (pathY + 1 >= myField.field.length) {
       console.log("Out of bounds 🚶");
       break;
-    } else if (myField.field[posY + 1][posX] === hole) {
+    } else if (myField.field[pathY + 1][pathX] === hole) {
       console.log("You fell down a hole 💀");
       break;
-    } else if (myField.field[posY + 1][posX] === hat) {
+    } else if (myField.field[pathY + 1][pathX] === hat) {
       console.log("You found your hat! 👍🌟");
       break;
     }
-    myField.field[posY + 1][posX] = pathCharacter;
-    posY++;
+    myField.field[pathY + 1][pathX] = pathCharacter;
+    pathY++;
   }
 
   if (userMove === "a") {
-    if (posX - 1 < 0) {
+    if (pathX - 1 < 0) {
       console.log("Out of bounds 🚶");
       break;
-    } else if (myField.field[posY][posX - 1] === hole) {
+    } else if (myField.field[pathY][pathX - 1] === hole) {
       console.log("You fell down a hole 💀");
       break;
-    } else if (myField.field[posY][posX - 1] === hat) {
+    } else if (myField.field[pathY][pathX - 1] === hat) {
       console.log("You found your hat! 👍🌟");
       break;
     }
-    myField.field[posY][posX - 1] = pathCharacter;
-    posX--;
+    myField.field[pathY][pathX - 1] = pathCharacter;
+    pathX--;
   }
 
   if (userMove === "d") {
-    if (posX + 1 >= myField.field[0].length) {
+    if (pathX + 1 >= myField.field[0].length) {
       console.log("Out of bounds 🚶");
       break;
-    } else if (myField.field[posY][posX + 1] === hole) {
+    } else if (myField.field[pathY][pathX + 1] === hole) {
       console.log("You fell down a hole 💀");
       break;
-    } else if (myField.field[posY][posX + 1] === hat) {
+    } else if (myField.field[pathY][pathX + 1] === hat) {
       console.log("You found your hat! 👍🌟");
       break;
     }
-    myField.field[posY][posX + 1] = pathCharacter;
-    posX++;
+    myField.field[pathY][pathX + 1] = pathCharacter;
+    pathX++;
   }
 }
