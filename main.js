@@ -46,8 +46,8 @@ class Field {
     while (holesInField < holesPercent) {
       const pos = Math.floor(Math.random() * fieldSpace);
       if (holesPos.includes(pos) || pos === 0) continue;
-      console.log(`hole position ${pos}`);
       field[pos] = hole;
+      holesPos.push(pos);
       holesInField++;
     }
 
@@ -76,9 +76,11 @@ class Field {
   }
 }
 
-const myField = new Field(Field.generateField());
+const myField = new Field(Field.generateField(6, 4, 25));
 
 let isPlaying = true;
+let posX = 0;
+let posY = 0;
 
 while (isPlaying) {
   myField.print();
@@ -92,92 +94,63 @@ while (isPlaying) {
   if (userMove === "q") break;
   if (!moveDirection.includes(userMove)) continue;
 
-  for (let i = myField.field.length - 1; i >= 0; i--) {
-    const pathCharIndex = myField.field[i].lastIndexOf(pathCharacter);
-    if (pathCharIndex === -1) continue;
-
-    if (userMove === "w") {
-      if (i - 1 < 0) {
-        console.log("Out of bounds 🚶");
-        isPlaying = !isPlaying;
-        break;
-      }
-      if (myField.field[i - 1][pathCharIndex] === hole) {
-        console.log("You fell down a hole 💀");
-        isPlaying = !isPlaying;
-        break;
-      }
-      if (myField.field[i - 1][pathCharIndex] === hat) {
-        console.log("You found your hat! 👍🌟");
-        isPlaying = !isPlaying;
-        break;
-      }
-
-      myField.field[i - 1][pathCharIndex] = pathCharacter;
+  if (userMove === "w") {
+    if (posY - 1 < 0) {
+      console.log("Out of bounds 🚶");
+      break;
+    } else if (myField.field[posY - 1][posX] === hole) {
+      console.log("You fell down a hole 💀");
+      break;
+    } else if (myField.field[posY - 1][posX] === hat) {
+      console.log("You found your hat! 👍🌟");
       break;
     }
+    myField.field[posY - 1][posX] = pathCharacter;
+    posY--;
+  }
 
-    if (userMove === "s") {
-      if (i + 1 >= myField.field.length) {
-        console.log("Out of bounds 🚶");
-        isPlaying = !isPlaying;
-        break;
-      }
-      if (myField.field[i + 1][pathCharIndex] === hole) {
-        console.log("You fell down a hole 💀");
-        isPlaying = !isPlaying;
-        break;
-      }
-      if (myField.field[i + 1][pathCharIndex] === hat) {
-        console.log("You found your hat! 👍🌟");
-        isPlaying = !isPlaying;
-        break;
-      }
-
-      myField.field[i + 1][pathCharIndex] = pathCharacter;
+  if (userMove === "s") {
+    if (posY + 1 >= myField.field.length) {
+      console.log("Out of bounds 🚶");
+      break;
+    } else if (myField.field[posY + 1][posX] === hole) {
+      console.log("You fell down a hole 💀");
+      break;
+    } else if (myField.field[posY + 1][posX] === hat) {
+      console.log("You found your hat! 👍🌟");
       break;
     }
+    myField.field[posY + 1][posX] = pathCharacter;
+    posY++;
+  }
 
-    if (userMove === "a") {
-      if (pathCharIndex - 1 < 0) {
-        console.log("Out of bounds 🚶");
-        isPlaying = !isPlaying;
-        break;
-      }
-      if (myField.field[i][pathCharIndex - 1] === hole) {
-        console.log("You fell down a hole 💀");
-        isPlaying = !isPlaying;
-        break;
-      }
-      if (myField.field[i][pathCharIndex - 1] === hat) {
-        console.log("You found your hat! 👍🌟");
-        isPlaying = !isPlaying;
-        break;
-      }
-
-      myField.field[i][pathCharIndex - 1] = pathCharacter;
+  if (userMove === "a") {
+    if (posX - 1 < 0) {
+      console.log("Out of bounds 🚶");
+      break;
+    } else if (myField.field[posY][posX - 1] === hole) {
+      console.log("You fell down a hole 💀");
+      break;
+    } else if (myField.field[posY][posX - 1] === hat) {
+      console.log("You found your hat! 👍🌟");
       break;
     }
+    myField.field[posY][posX - 1] = pathCharacter;
+    posX--;
+  }
 
-    if (userMove === "d") {
-      if (pathCharIndex + 1 >= myField.field[i].length) {
-        console.log("Out of bounds 🚶");
-        isPlaying = !isPlaying;
-        break;
-      }
-      if (myField.field[i][pathCharIndex + 1] === hole) {
-        console.log("You fell down a hole 💀");
-        isPlaying = !isPlaying;
-        break;
-      }
-      if (myField.field[i][pathCharIndex + 1] === hat) {
-        console.log("You found your hat! 👍🌟");
-        isPlaying = !isPlaying;
-        break;
-      }
-
-      myField.field[i][pathCharIndex + 1] = pathCharacter;
+  if (userMove === "d") {
+    if (posX + 1 >= myField.field[0].length) {
+      console.log("Out of bounds 🚶");
+      break;
+    } else if (myField.field[posY][posX + 1] === hole) {
+      console.log("You fell down a hole 💀");
+      break;
+    } else if (myField.field[posY][posX + 1] === hat) {
+      console.log("You found your hat! 👍🌟");
       break;
     }
+    myField.field[posY][posX + 1] = pathCharacter;
+    posX++;
   }
 }
